@@ -178,7 +178,7 @@ class Authentication:
 class customException:
     def methodException(path, method):
         error = MutableDict(manifest['error_schema']).update("error", "Method Exception")
-        error = error.update("detail.desc", manifest['error_log'][19]['desc'])
+        error = error.update("detail.desc", manifest['error_log'][20]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.method", method)
         error = error.update("status.code", 405)
@@ -187,7 +187,7 @@ class customException:
 
     def notFoundException(path, method):
         error = MutableDict(manifest['error_schema']).update("error", "Path Exception")
-        error = error.update("detail.desc", manifest['error_log'][19]['desc'])
+        error = error.update("detail.desc", manifest['error_log'][20]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.method", method)
         error = error.update("status.code", 404)
@@ -222,6 +222,17 @@ class customException:
         error = error.update("status.code", 422)
         error = error.update("status.message", "Task Faild due to unsupported convertation")
         return error
+    
+    def processException(path, data):
+        error = MutableDict(manifest['error_schema']).update("error", "Unprocessable Exception")
+        error = error.update("detail.desc", manifest['error_log'][19]['desc'])
+        error = error.update("detail.path", path)
+        error = error.insert("detail.input", data)
+        error = error.update("network.url", "https://chsapi.vercel.app/api/")
+        error = error.update("status.code", 422)
+        error = error.update("status.message", "Task Faild due to unprocessable information")
+        return error
+
     
 class TaskMaster:
     def convert_img(input_list):

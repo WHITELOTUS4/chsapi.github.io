@@ -63,6 +63,8 @@ def read_root(data: ImgEnhance, request: Request):
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
     src = TaskMaster.enhance_img([data.img, data.brightness, data.contrast, data.sharpness])
+    if src == 20:
+        return customException.processException(request.url.path, data)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
