@@ -1,0 +1,81 @@
+{
+    "name": "Cavernous Hoax Scanner",
+    "short_name": "CHS",
+    "description": "Cavernous Hoax Scanner is a web-based platform that leverages JPEN stack technology to implement deep learning algorithms, specifically CNN, GANs, Relational regression.",
+    "icons": [
+        {
+            "src": "favicon.png",
+            "sizes": "1500x1500 16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "logo1500.png",
+            "type": "image/png",
+            "sizes": "1500x1500"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#22577aff",
+    "background_color": "#ffffff",
+    "error_log": [
+        {"code": 0, "desc": "Invalid user input: empty field detected"},
+        {"code": 1, "desc": "Media not supported for this utility, Check the media property or report it!"},
+        {"code": 2, "desc": "Image too large: maximum size exceeded"},
+        {"code": 3, "desc": "Failed to compress image: unknown compression error"},
+        {"code": 4, "desc": "Watermarking failed: unable to overlay text/image"},
+        {"code": 5, "desc": "Face detection failed: no faces detected in image/video"},
+        {"code": 6, "desc": "Video processing failed: unsupported video codec"},
+        {"code": 7, "desc": "Image to PDF conversion failed: unable to generate PDF"},
+        {"code": 8, "desc": "Invalid video format: only MP4, AVI, and MOV are supported"},
+        {"code": 9, "desc": "Video too large: maximum size exceeded"},
+        {"code": 10, "desc": "Failed to extract frames from video: unknown error"},
+        {"code": 11, "desc": "Image upload failed: unable to upload image to server"},
+        {"code": 12, "desc": "Video upload failed: unable to upload video to server"},
+        {"code": 13, "desc": "Image resizing failed: unable to resize image"},
+        {"code": 14, "desc": "Image optimization failed: unable to optimize image"},
+        {"code": 15, "desc": "Video optimization failed: unable to optimize video"},
+        {"code": 16, "desc": "Image size under conditions: unsble to resize image"},
+        {"code": 17, "desc": "Unwanted media convertion try, Check the media property or report it!"},
+        {"code": 18, "desc": "Access not possible using provided API Key, Check the API Key or report it!"},
+        {"code": 19, "desc": "Routes not found on thi url, Check the end point or report it!"}
+    ],
+    "error_schema": {
+        "error": "... Exception",
+        "detail": {
+            "desc": null,
+            "path": "./"
+        },
+        "network": {
+            "url": "https://chsapi.vercel.app/",
+            "kernel": "inphant api",
+            "provider": "chs"
+        },
+        "status": {
+            "code": 0,
+            "message": "Task Faild due to ..."
+        }
+    },
+    "result_schema": {
+        "result": "",
+        "metadata": {
+            "version": "1.0.0",
+            "request_id": null,
+            "header": {
+                "Content-Type": "application/json"
+            },
+            "processing_time": "2s",
+            "timestamp": null
+        },
+        "network": {
+            "url": "https://chsapi.vercel.app/api/",
+            "kernel": "inphant api",
+            "provider": "chs"
+        },
+        "source": "WHITE LOTUS Community",
+        "status": {
+            "code": 200,
+            "message": "Image processed successfully"
+        }
+    }
+}
