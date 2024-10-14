@@ -29,41 +29,45 @@ def resizeImage(image_path, width, height):
         return "Image size under conditions", current_width, current_height
 
 def enhance_image(image_data, brightness, contrast, sharpness):
-    image_bytes = base64.b64decode(image_data.split(",")[1])
-    image = Image.open(io.BytesIO(image_bytes))
+    try:
+        image_bytes = base64.b64decode(image_data.split(",")[1])
+        image = Image.open(io.BytesIO(image_bytes))
 
-    # image = image.convert("RGB")
+        # image = image.convert("RGB")
 
-    sharpness_enhancer = ImageEnhance.Sharpness(image)
-    image = sharpness_enhancer.enhance(sharpness)
+        sharpness_enhancer = ImageEnhance.Sharpness(image)
+        image = sharpness_enhancer.enhance(sharpness)
 
-    image = image.filter(ImageFilter.SMOOTH_MORE)
+        image = image.filter(ImageFilter.SMOOTH_MORE)
 
-    brightness_enhancer = ImageEnhance.Brightness(image)
-    image = brightness_enhancer.enhance(brightness)
+        brightness_enhancer = ImageEnhance.Brightness(image)
+        image = brightness_enhancer.enhance(brightness)
 
-    contrast_enhancer = ImageEnhance.Contrast(image)
-    image = contrast_enhancer.enhance(contrast)
+        contrast_enhancer = ImageEnhance.Contrast(image)
+        image = contrast_enhancer.enhance(contrast)
 
-    ext = str(Preprocessor.Tools.find_extension(image_data))
+        ext = str(Preprocessor.Tools.find_extension(image_data))
 
-    buffer = io.BytesIO()
-    image.save(buffer, format=ext)
+        buffer = io.BytesIO()
+        image.save(buffer, format=ext)
 
-    enhanced_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    return f"data:image/{ext};base64,{enhanced_image_base64}"
+        enhanced_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        return f"data:image/{ext};base64,{enhanced_image_base64}"
+    except:
+        # print("Unprocessable information gain on enhance")
+        return 20   # error code
 
 def degrade_image(image_data, quality=20):
     image_bytes = base64.b64decode(image_data.split(",")[1])
     image = Image.open(io.BytesIO(image_bytes))
-
-    image = image.convert("RGB")
     
+    ext = str(Preprocessor.Tools.find_extension(image_data))
+
     buffer = io.BytesIO()
-    image.save(buffer, format="JPEG", quality=quality)
+    image.save(buffer, format=ext, quality=quality)
 
     degraded_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    return f"data:image/jpeg;base64,{degraded_image_base64}"
+    return f"data:image/{ext};base64,{degraded_image_base64}"
 
 
 def compress_image(input_list):
