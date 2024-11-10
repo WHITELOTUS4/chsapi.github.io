@@ -1,4 +1,6 @@
 fastapi
 uvicorn
 numpy
-pillow
+Pillow
+svgwrite
+fpdf
