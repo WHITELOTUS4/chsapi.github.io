@@ -1,5 +1,5 @@
 import sys
-import cv2
+# import cv2
 import Preprocessor
 from PIL import Image, ImageEnhance, ImageFilter
 import io
