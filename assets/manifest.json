@@ -78,5 +78,8 @@
             "code": 200,
             "message": "Image processed successfully"
         }
+    },
+    "root_schema": {
+        "html_content": "<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'><meta name='viewport' content='width=device-width, initial-scale=1.0'><meta property='og:image' content='https://kidKrishkode.github.io/Streamline-Diagnosis.github.io/images/Cavernous.png' name='og:image'><meta content='CHSAPI is a media-tech API platform that leverages JPEN stack technology to serve deepfake detection, image compressor, image converter, image to pdf etc utility. specifically made for Cavernous Hoax Scanner but now free for every one.' lang='en-us' name='description'><meta content='Cavernous Hoax Scanner, Deepfake Detector, DFD, Image tool, deepfake, image editor, project, CNN, WHITE LOTUS' lang='en-us' name='keywords'><title version='1.0'>Cavernous Hoax Scanner</title><link rel='icon' href='https://kidKrishkode.github.io/Streamline-Diagnosis.github.io/images/Cavernous.png'/></head><body><h1 style='text-align: center;font-family: sans-serif;margin-top: 20%;color: #430085;font-size: 50px;'>Ahoy hoy Universe</h1></body></html>"
     }
 }
