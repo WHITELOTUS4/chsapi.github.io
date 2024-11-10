@@ -2,6 +2,7 @@ from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware
+from fastapi.responses import HTMLResponse
 
 app = FastAPI()
 
@@ -15,9 +16,11 @@ app.add_middleware(
 
 all_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def read_root():
-    return {"Ahoy hoy": "Universe"}
+    html_content = Responce.initial_responce()
+    # return {"Ahoy hoy": "Universe"}
+    return HTMLResponse(content=html_content)
 
 @app.get("/api/")
 def read_root(number: list[str] = Query(...)):

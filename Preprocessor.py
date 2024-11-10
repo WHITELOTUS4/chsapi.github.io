@@ -130,6 +130,10 @@ class Responce:
         result = result.update("metadata.timestamp", Tools.timeStamp())
         return result
     
+    def initial_responce():
+        schema = MutableDict(manifest['root_schema'])
+        return schema['html_content']
+    
 class Authentication:
     auth_file = './assets/auth.json'
 
