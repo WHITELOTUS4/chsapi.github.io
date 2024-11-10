@@ -176,8 +176,13 @@ class Authentication:
             return False
 
 class customException:
+    def error_schema():
+        with open('./assets/manifest.json') as data:
+            manifest = json.load(data)
+            return MutableDict(manifest['error_schema'])
+    
     def methodException(path, method):
-        error = MutableDict(manifest['error_schema']).update("error", "Method Exception")
+        error = (customException.error_schema()).update("error", "Method Exception")
         error = error.update("detail.desc", manifest['error_log'][20]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.method", method)
@@ -186,7 +191,7 @@ class customException:
         return error
 
     def notFoundException(path, method):
-        error = MutableDict(manifest['error_schema']).update("error", "Path Exception")
+        error = (customException.error_schema()).update("error", "Path Exception")
         error = error.update("detail.desc", manifest['error_log'][20]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.method", method)
@@ -195,7 +200,7 @@ class customException:
         return error
 
     def accessException(path, key):
-        error = MutableDict(manifest['error_schema']).update("error", "Access Exception")
+        error = (customException.error_schema()).update("error", "Access Exception")
         error = error.update("detail.desc", manifest['error_log'][18]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.key", key)
@@ -204,7 +209,7 @@ class customException:
         return error
     
     def unsupportException(path, extension):
-        error = MutableDict(manifest['error_schema']).update("error", "Unsupport Media Exception")
+        error = (customException.error_schema()).update("error", "Unsupport Media Exception")
         error = error.update("detail.desc", manifest['error_log'][1]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.extension", extension)
@@ -214,7 +219,7 @@ class customException:
         return error
     
     def convertationException(path, extension):
-        error = MutableDict(manifest['error_schema']).update("error", "Unsupport Convertation Exception")
+        error = (customException.error_schema()).update("error", "Unsupport Convertation Exception")
         error = error.update("detail.desc", manifest['error_log'][17]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.extension", extension)
@@ -224,7 +229,7 @@ class customException:
         return error
     
     def processException(path, data):
-        error = MutableDict(manifest['error_schema']).update("error", "Unprocessable Exception")
+        error = (customException.error_schema()).update("error", "Unprocessable Exception")
         error = error.update("detail.desc", manifest['error_log'][19]['desc'])
         error = error.update("detail.path", path)
         error = error.insert("detail.input", data)
@@ -239,8 +244,20 @@ class TaskMaster:
         src = imgConverter.convert_image(input_list)
         return src
     def resize_img(image_path, width, height):
-        src = imgCompressor.resizeImage(image_path, width, height)
+        src = imgCompressor.resize_image(image_path, width, height)
         return src
     def enhance_img(input_list):
         src = imgCompressor.compress_image(input_list)
         return src
+    def compress_img(input_list):
+        if input_list[3] != None:
+            return imgCompressor.compress_image(['degrade', input_list[0], input_list[3]])
+        else:
+            return TaskMaster.resize_img(input_list[0], input_list[1], input_list[2])
+    
+class Middleware:
+    def security(method, allow_method, path, key):
+        if not Authentication.isValidAccess(key):
+            return customException.accessException(path, key)
+        if method not in allow_method:
+            return customException.methodException(path, method)
