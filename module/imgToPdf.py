@@ -1,6 +1,6 @@
 import sys
 import ast
-import cv2
+# import cv2
 from fpdf import FPDF
 import Preprocessor
 
