@@ -11,6 +11,7 @@ assumption = random.choice([0,1])
 img_extensions = ['.jpg', '.jpeg', '.png', '.peng', '.bmp', '.gif', '.webp', '.svg', '.jpe', '.jfif', '.tar', '.tiff', '.tga']
 vdo_extensions = ['.mp4','.mov', '.wmv', '.avi', '.avchd', '.flv', '.f4v', '.swf', '.mkv', '.webm', '.html5']
 manifest = None
+single_img_bin = []
 
 def sum(a, b):
     return a+b
@@ -54,6 +55,9 @@ class Tools:
         except Exception as e:
             print(f"Error to reading image: {e}")
             return False
+        
+    def merge_list_to_string(array, delimiter=''):
+        return delimiter.join(array)
     
     # import moviepy.editor as mp   # install it at first using pip
     # def is_video(video_data):

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware
+from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware, single_img_bin
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
@@ -23,12 +23,31 @@ def read_root():
     return HTMLResponse(content=html_content)
 
 @app.get("/api/")
-def read_root(number: list[str] = Query(...)):
-    return {"result": number, "time": Tools.timeStamp()}
+def read_root():
+    return {"result": "List of service is not loaded..", "time": Tools.timeStamp()}
+
+class ImgLoader(BaseModel):
+    img: str
+    limit: int
+    index: int
+    key: str | None
+
+@app.api_route("/load/single", methods=all_methods)
+def read_root(data: ImgLoader, request: Request):
+    if not Authentication.isValidAccess(data.key):
+        return customException.accessException(request.url.path, data.key)
+    if request.method not in ["GET", "POST", "SET"]:
+        return customException.methodException(request.url.path, request.method)
+    if(data.index <= data.limit and data.index > 0):
+        single_img_bin.append(data.img)
+        return {"ack": data.index, "time": Tools.timeStamp()}
+    else:
+        print("image index out of range")
 
 class ImgConverter(BaseModel):
     form: str
     img: str
+    load: str | None
     key: str | None
 
 @app.api_route("/api/imageConverter", methods=all_methods)
@@ -37,7 +56,11 @@ def read_root(data: ImgConverter, request: Request):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
-    src = TaskMaster.convert_img([data.img, data.form])
+    if(data.load=='true' and single_img_bin!=[]):
+        src = TaskMaster.convert_img(['load', data.form])
+    else:
+        img = data.img
+        src = TaskMaster.convert_img([img, data.form])
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.form)
     if src == 17:
