@@ -2,10 +2,14 @@ from PIL import Image
 from datetime import datetime
 import logging
 import json
-from module import imgCompressor, imgConverter, imgToPdf
+from module import imgCompressor, imgConverter, imgToPdf, deepfakeDetector
 import random
 import base64
 import io
+import aiohttp
+import asyncio
+import requests
+import sys
 
 assumption = random.choice([0,1])
 img_extensions = ['.jpg', '.jpeg', '.png', '.peng', '.bmp', '.gif', '.webp', '.svg', '.jpe', '.jfif', '.tar', '.tiff', '.tga']
@@ -19,8 +23,13 @@ def sum(a, b):
 def sub(a, b):
     return a-b
 
-with open('./assets/manifest.json') as data:
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+json_path = os.path.join(script_dir, 'assets', 'manifest.json')
+with open(json_path, 'r') as data:
     manifest = json.load(data)
+# with open('./assets/manifest.json') as data:
+#     manifest = json.load(data)
 
 class Tools:
     def json_log(message):
@@ -59,33 +68,14 @@ class Tools:
     def merge_list_to_string(array, delimiter=''):
         return delimiter.join(array)
     
-    # import moviepy.editor as mp   # install it at first using pip
-    # def is_video(video_data):
-    #     valid_extensions = vdo_extensions
-    #     if not video_data.startswith("data:video/"):
-    #         return False
-    #     try:
-    #         header, encoded_data = video_data.split(",", 1)
-    #         ext = header.split(";")[0].split("/")[1].lower()
-    #         if ("."+ext) not in valid_extensions:
-    #             return False
-    #     except Exception as e:
-    #         print(f"Error parsing video data URL: {e}")
-    #         return False
-    #     try:
-    #         video_bytes = base64.b64decode(encoded_data)
-    #         video_stream = io.BytesIO(video_bytes)
-    #         video = mp.VideoFileClip(video_stream)
-    #         video_duration = video.duration
-    #         return True if video_duration > 0 else False
-    #     except Exception as e:
-    #         print(f"Error to reading video: {e}")
-    #         return False
+    def represent(value):
+        print(f"value: {str(value)}, Type: {type(value)}")
 
 class MutableDict(dict):
     def update(self, key_path, new_value):
         key_list = key_path.split('.')
         current_dict = self
+        print(current_dict)
         if len(key_list) == 1:
             if key_list[0] not in current_dict:
                 raise KeyError(f"Key '{key_list[0]}' not found in object")
@@ -138,6 +128,59 @@ class Responce:
         schema = MutableDict(manifest['root_schema'])
         return schema['html_content']
     
+    def send_parts_with_ack(main_string, limit):
+        print("define ",limit)
+        chunk_size = sys.getsizeof(str(main_string))/1024
+        chunk_no = round(chunk_size / 900) + 2
+        part_length = int(len(main_string) / chunk_no)+1
+        print("Custome limit ", chunk_size, chunk_no, part_length)
+        # return [limit, chunk_size, chunk_no, part_length]
+        # parts = []
+        # for i in range(chunk_no):
+        #     parts.append(main_string[i * part_length : (i + 1) * part_length])
+        #     # print(f"{i} part value {(parts[i])[0:50]}\t{(parts[i])[-50:]}\n")
+        # print(len(parts))
+    
+        # async def send_part(part, index, limit):
+        #     attempts = 0
+        #     while attempts < 3:
+        #         attempts += 1
+        #         try:
+                    # async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
+                    #     async with session.post('http://127.0.0.1:5000/load/response',
+                    #         headers={
+                    #             'Content-Type': 'application/json',
+                    #         },
+                    #         json = {
+                    #             "img": part,
+                    #             "limit": limit,
+                    #             "index": index,
+                    #         }
+                    #     ) as response:
+                    #         if response.status != 200:
+                    #             raise ValueError(f"HTTP error! Status: {response.status}")
+                    #         data = await response.json()
+                    #         print(f"Attempt {attempts}:", data)
+                    #         if data.get("ack") == index:
+                    #             return True
+        #             url = 'http://127.0.0.1:5000/load/response'
+        #             headers = {"Content-Type": "application/json"}
+        #             response = requests.post(url, headers=headers, data=json.dumps({"img": part,"limit": limit,"index": index}))
+        #             response.raise_for_status()  # Raise an exception for bad status codes
+
+        #             return {"message": "Data sent successfully"}
+        #         except Exception as e:
+        #             print(f"Error on attempt {attempts} for part {index}: {e}")
+        #     return False
+        # # parts.reverse()
+        # for i in range(len(parts)):
+        #     is_success = await send_part(parts[i], i + 1, chunk_no)
+        #     print(f"{i} part value {(parts[i])[0:50]}\t{(parts[i])[-50:]}\n")
+        #     if not is_success:
+        #         return False
+        # return True
+
+    
 class Authentication:
     auth_file = './assets/auth.json'
 
@@ -145,8 +188,11 @@ class Authentication:
         try:
             if key == '' or key == None:
                 return True
-            with open(Authentication.auth_file) as data:
+            json_path = os.path.join(script_dir, 'assets', 'auth.json')
+            with open(json_path, 'r') as data:
                 auth_data = json.load(data)
+                # with open(Authentication.auth_file) as data:
+                #     auth_data = json.load(data)
                 for i in range (0, len(auth_data['valid_key'])):
                     if key == auth_data['valid_key'][i]:
                         return True
@@ -158,7 +204,8 @@ class Authentication:
         try:
             if key == '' or key == None:
                 return 'Public'
-            with open(Authentication.auth_file) as data:
+            json_path = os.path.join(script_dir, 'assets', 'auth.json')
+            with open(json_path, 'r') as data:
                 auth_data = json.load(data)
                 for i in range (0, len(auth_data['valid_key'])):
                     if key == auth_data['valid_key'][i]:
@@ -171,7 +218,8 @@ class Authentication:
         try:
             if key == '' or key == None:
                 return 'Public user'
-            with open(Authentication.auth_file) as data:
+            json_path = os.path.join(script_dir, 'assets', 'auth.json')
+            with open(json_path, 'r') as data:
                 auth_data = json.load(data)
                 for i in range (0, len(auth_data['valid_key'])):
                     if key == auth_data['valid_key'][i]:
@@ -185,7 +233,9 @@ class Authentication:
 
 class customException:
     def error_schema():
-        with open('./assets/manifest.json') as data:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        json_path = os.path.join(script_dir, 'assets', 'manifest.json')
+        with open(json_path, 'r') as data:
             manifest = json.load(data)
             return MutableDict(manifest['error_schema'])
     
@@ -254,6 +304,9 @@ class TaskMaster:
     def resize_img(image_path, width, height):
         src = imgCompressor.resize_image(image_path, width, height)
         return src
+    def dfd_img(input_list):
+        src = deepfakeDetector.detect_image(input_list)
+        return src
     def enhance_img(input_list):
         src = imgCompressor.compress_image(input_list)
         return src
@@ -269,3 +322,4 @@ class Middleware:
             return customException.accessException(path, key)
         if method not in allow_method:
             return customException.methodException(path, method)
+        

@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware, single_img_bin
 from fastapi.responses import HTMLResponse
+import asyncio
+import cv2
+import numpy as np
 
 app = FastAPI()
 
@@ -52,6 +55,7 @@ class ImgConverter(BaseModel):
 
 @app.api_route("/api/imageConverter", methods=all_methods)
 def read_root(data: ImgConverter, request: Request):
+    limit = len(single_img_bin)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
@@ -66,6 +70,34 @@ def read_root(data: ImgConverter, request: Request):
     if src == 17:
         return customException.convertationException(request.url.path, data.form)
     responce = Responce.model(data.key).update("result", src)
+    return responce
+
+class DfdDetector(BaseModel):
+    ext: str
+    img: str
+    load: str | None
+    key: str | None
+
+import re
+@app.api_route("/api/dfdScanner", methods=all_methods)
+def read_root(data: DfdDetector, request: Request):
+    limit = len(single_img_bin)
+    if not Authentication.isValidAccess(data.key):
+        return customException.accessException(request.url.path, data.key)
+    if request.method not in ["GET", "POST"]:
+        return customException.methodException(request.url.path, request.method)
+    if(data.load=='true' and single_img_bin!=[]):
+        src = TaskMaster.dfd_img(['load', data.ext])
+    else:
+        img = data.img
+        src = TaskMaster.dfd_img([img, data.ext])
+    # src = re.search(r"{'class':.*?}",src)
+    # Tools.represent(src)
+    if src == None or src == 1:
+        return customException.unsupportException(request.url.path, data.ext)
+    if src == 19:
+        return customException.convertationException(request.url.path, data.ext)
+    responce = Responce.model(data.key).update("result", str(src))
     return responce
 
 class ImgEnhance(BaseModel):
@@ -91,6 +123,13 @@ def read_root(data: ImgEnhance, request: Request):
         return customException.processException(request.url.path, data)
     responce = Responce.model(data.key).update("result", src)
     return responce
+    # chunk_size = sys.getsizeof(str(responce))/1024
+    # chunk_no = round(chunk_size / 900) + 2
+    # part_length = int(len(responce) / chunk_no)+1
+    # return [limit, chunk_size, chunk_no, part_length]
+    # if(limit >= 6 and data.load=='true'):
+    #     responce = (Responce.send_parts_with_ack(str(responce), limit))
+    # return responce
 
 @app.api_route("/api/imageDegrader", methods=all_methods)
 def read_root(data: ImgEnhance, request: Request):
