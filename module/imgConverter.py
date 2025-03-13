@@ -118,6 +118,7 @@ def convert_image(input_list):
     extension = str(input_list[1])
     new_image_path = None
 
+    # print(image_path)
     if(image_path=='load'):
         image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
         Preprocessor.single_img_bin.clear()
