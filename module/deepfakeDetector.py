@@ -15,7 +15,7 @@ os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.chdir(os.path.dirname(__file__))
 
 # Load the saved Keras model
-model_path = './cnn2.keras'
+model_path = '../model/dfd_p1.keras'
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found at {model_path}")
 model = keras.models.load_model(model_path)
