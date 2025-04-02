@@ -91,13 +91,11 @@ def read_root(data: DfdDetector, request: Request):
     else:
         img = data.img
         src = TaskMaster.dfd_img([img, data.ext])
-    # src = re.search(r"{'class':.*?}",src)
-    # Tools.represent(src)
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.ext)
     if src == 19:
         return customException.convertationException(request.url.path, data.ext)
-    responce = Responce.model(data.key).update("result", str(src))
+    responce = Responce.model(data.key).update("result", src)
     return responce
 
 class ImgEnhance(BaseModel):
