@@ -2,7 +2,7 @@ from PIL import Image
 from datetime import datetime
 import logging
 import json
-from module import imgCompressor, imgConverter, imgToPdf, temp as deepfakeDetector
+from module import imgCompressor, imgConverter, imgToPdf, deepfakeDetector
 import random
 import base64
 import io
