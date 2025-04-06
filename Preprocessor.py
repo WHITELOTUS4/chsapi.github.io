@@ -2,7 +2,7 @@ from PIL import Image
 from datetime import datetime
 import logging
 import json
-from module import imgCompressor, imgConverter, imgToPdf, deepfakeDetector
+from module import imgCompressor, imgConverter, imgToPdf, temp as deepfakeDetector
 import random
 import base64
 import io
@@ -75,7 +75,7 @@ class MutableDict(dict):
     def update(self, key_path, new_value):
         key_list = key_path.split('.')
         current_dict = self
-        print(current_dict)
+        # print(current_dict)
         if len(key_list) == 1:
             if key_list[0] not in current_dict:
                 raise KeyError(f"Key '{key_list[0]}' not found in object")
@@ -306,6 +306,7 @@ class TaskMaster:
         return src
     def dfd_img(input_list):
         src = deepfakeDetector.detect_image(input_list)
+        # src = temp.detect_image(input_list)
         return src
     def enhance_img(input_list):
         src = imgCompressor.compress_image(input_list)
