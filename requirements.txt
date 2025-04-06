@@ -7,4 +7,3 @@ svgwrite
 fpdf
 aiohttp
 requests
-opencv-python
