@@ -1,5 +1,9 @@
 fastapi
 uvicorn
-numpy
-pillow
 onnxruntime
+numpy
+Pillow
+svgwrite
+fpdf
+aiohttp
+requests
