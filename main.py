@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware, single_img_bin
 from fastapi.responses import HTMLResponse
 import asyncio
-import cv2
 import numpy as np
 
 app = FastAPI()
