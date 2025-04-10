@@ -48,7 +48,7 @@ def classify_base64_image(base64_string):
         accuracy = round(prediction * 100, 2) if label == 'Real' else round((1 - prediction) * 100, 2)
         accuracy = 99.98 if accuracy == 100 else accuracy
 
-        return {"class": label, "score": accuracy}
+        return {"class": label, "accuracy": accuracy}
     except Exception as e:
         return {"error": str(e)}
 
