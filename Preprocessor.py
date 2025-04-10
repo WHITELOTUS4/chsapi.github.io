@@ -28,6 +28,9 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(script_dir, 'assets', 'manifest.json')
 with open(json_path, 'r') as data:
     manifest = json.load(data)
+module_dir = os.path.dirname(__file__)
+if os.path.exists(os.path.join(module_dir, 'module', 'temp.py')):
+    from module import temp as deepfakeDetector
 # with open('./assets/manifest.json') as data:
 #     manifest = json.load(data)
 
@@ -296,7 +299,6 @@ class customException:
         error = error.update("status.message", "Task Faild due to unprocessable information")
         return error
 
-    
 class TaskMaster:
     def convert_img(input_list):
         src = imgConverter.convert_image(input_list)
@@ -306,7 +308,6 @@ class TaskMaster:
         return src
     def dfd_img(input_list):
         src = deepfakeDetector.detect_image(input_list)
-        # src = temp.detect_image(input_list)
         return src
     def enhance_img(input_list):
         src = imgCompressor.compress_image(input_list)
