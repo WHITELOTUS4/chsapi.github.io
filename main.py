@@ -77,19 +77,17 @@ class DfdDetector(BaseModel):
     load: str | None
     key: str | None
 
-import re
 @app.api_route("/api/dfdScanner", methods=all_methods)
 def read_root(data: DfdDetector, request: Request):
-    limit = len(single_img_bin)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
     if(data.load=='true' and single_img_bin!=[]):
-        src = TaskMaster.dfd_img(['load', data.ext])
+        src = TaskMaster.dfd_img(['load', data.ext], data.key)
     else:
         img = data.img
-        src = TaskMaster.dfd_img([img, data.ext])
+        src = TaskMaster.dfd_img([img, data.ext], data.key)
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.ext)
     if src == 19:
