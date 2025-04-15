@@ -11,7 +11,7 @@ import requests
 
 # Replace with your Google Drive shareable file ID
 # https://drive.google.com/file/d/1Xla03DkeP8K0Izyd1wyW6pe-nTis4OpH/view?usp=sharing
-print("Drive model export start...\n")
+#print("Drive model export start...\n")
 GOOGLE_DRIVE_FILE_ID = "1Xla03DkeP8K0Izyd1wyW6pe-nTis4OpH"
 GOOGLE_DRIVE_MODEL_URL = f"https://drive.google.com/uc?export=download&id={GOOGLE_DRIVE_FILE_ID}"
 
@@ -24,10 +24,10 @@ def load_onnx_model_from_drive():
     session = ort.InferenceSession(model_bytes.read())
     return session
 
-session = load_onnx_model_from_drive()
-input_name = session.get_inputs()[0].name
+#session = load_onnx_model_from_drive()
+#input_name = session.get_inputs()[0].name
 
-print("Drive model loading, done\n")
+#print("Drive model loading, done\n")
 
 # session = ort.InferenceSession(onnx_model_path)
 # input_name = session.get_inputs()[0].name
@@ -60,6 +60,10 @@ def classify_base64_image(base64_string):
         if img_array is None:
             return {"error": "Failed to preprocess image"}
 
+        print("Drive model export start...\n")
+        session = load_onnx_model_from_drive()
+        input_name = session.get_inputs()[0].name
+        print("Drive model loading, done\n")
         output = session.run(None, {input_name: img_array})[0]
         prediction = float(output[0][0])  # Real confidence score
 
