@@ -1,7 +1,7 @@
 import os
 import Preprocessor
 from module import dfd_p1
-from module import dfd_p2 #the large model compiler
+#from module import dfd_p2 #the large model compiler
 from module import dfd_p3
 
 module_dir = os.path.dirname(__file__)
@@ -36,7 +36,7 @@ def detect_image(input_list, no_of_model):
         if(input_list[0]=='load'):
             input_list[0] = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin.copy())
         p1 = dfd_p1.detect_image(input_list)
-        p2 = dfd_p2.detect_image(input_list)
+        p2 = dfd_p3.detect_image(input_list)
         p3 = dfd_p3.detect_image(input_list)
         final_result = hard_voting([p1, p2, p3])
         src = Preprocessor.MutableDict(final_result).insert("responce_tree", {"prototype_1": p1, "prototype_2": p2, "prototype_3": p3})
