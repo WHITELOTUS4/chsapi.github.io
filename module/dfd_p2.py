@@ -6,7 +6,7 @@ from PIL import Image
 import onnxruntime as ort
 
 # Load ONNX model
-# onnx_model_path = './model/dfd_p2.onnx'
+onnx_model_path = './model/dfd_p2.onnx'
 import requests
 
 # Replace with your Google Drive shareable file ID
@@ -29,8 +29,8 @@ def load_onnx_model_from_drive():
 
 #print("Drive model loading, done\n")
 
-# session = ort.InferenceSession(onnx_model_path)
-# input_name = session.get_inputs()[0].name
+session = ort.InferenceSession(onnx_model_path)
+input_name = session.get_inputs()[0].name
 
 # Preprocessing base64 image
 def preprocess_base64_image(base64_string):
@@ -61,7 +61,7 @@ def classify_base64_image(base64_string):
             return {"error": "Failed to preprocess image"}
 
         print("Drive model export start...\n")
-        session = load_onnx_model_from_drive()
+        # session = load_onnx_model_from_drive()
         input_name = session.get_inputs()[0].name
         print("Drive model loading, done\n")
         output = session.run(None, {input_name: img_array})[0]
