@@ -73,7 +73,7 @@ def read_root(data: ImgConverter, request: Request):
 
 class DfdDetector(BaseModel):
     ext: str
-    img: str
+    media: str
     load: str | None
     key: str | None
 
@@ -84,10 +84,18 @@ def read_root(data: DfdDetector, request: Request):
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
     if(data.load=='true' and single_img_bin!=[]):
-        src = TaskMaster.dfd_img(['load', data.ext], data.key)
+        print(Tools.base64_type(single_img_bin[0]))
+        if Tools.base64_type(single_img_bin[0]) == 'image':
+            src = TaskMaster.dfd_img(['load', data.ext], data.key)
+        else:
+            src = TaskMaster.dfd_vdo(['load', data.ext], data.key)
     else:
-        img = data.img
-        src = TaskMaster.dfd_img([img, data.ext], data.key)
+        media = data.media
+        print(Tools.base64_type(media))
+        if Tools.base64_type(media) == 'image':
+            src = TaskMaster.dfd_img([media, data.ext], data.key)
+        else:
+            src = TaskMaster.dfd_vdo([media, data.ext], data.key)
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.ext)
     if src == 19:

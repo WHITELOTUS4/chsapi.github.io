@@ -67,6 +67,28 @@ class Tools:
         except Exception as e:
             print(f"Error to reading image: {e}")
             return False
+    
+    def base64_type(media_data):
+        if not media_data.startswith("data:"):
+            return False
+        try:
+            header, encoded_data = media_data.split(",", 1)
+            type = header.split(":")[1].split("/")[0].lower()
+            return type
+        except Exception as e:
+            print(f"Error to reading media: {e}")
+            return False
+        
+    def base64_ext(media_data):
+        if not media_data.startswith("data:"):
+            return False
+        try:
+            header, encoded_data = media_data.split(",", 1)
+            ext = header.split(";")[0].split("/")[1].lower()
+            return ext
+        except Exception as e:
+            print(f"Error to reading media: {e}")
+            return False
         
     def merge_list_to_string(array, delimiter=''):
         return delimiter.join(array)
@@ -314,6 +336,9 @@ class TaskMaster:
             src = deepfakeDetector.detect_image(input_list, 'single')
         else:
             src = 18
+        return src
+    def dfd_vdo(input_list, key):
+        src = deepfakeDetector.detect_video(input_list)
         return src
     def enhance_img(input_list):
         src = imgCompressor.compress_image(input_list)
