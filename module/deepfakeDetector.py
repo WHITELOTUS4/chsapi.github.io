@@ -42,3 +42,11 @@ def detect_image(input_list, no_of_model):
         src = Preprocessor.MutableDict(final_result).insert("responce_tree", {"prototype_1": p1, "prototype_2": p2, "prototype_3": p3})
         Preprocessor.single_img_bin.clear()
         return src
+    
+def detect_video(input_list):
+    src = {
+        'class': 'Unkown',
+        'accuracy': 0
+    }
+    Preprocessor.single_img_bin.clear()
+    return src
