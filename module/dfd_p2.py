@@ -35,7 +35,7 @@ def load_onnx_model_from_drive(drive_url):
 
 # Load model conditionally
 def load_model():
-    if not detect_protocol_host() == 'https':
+    if detect_protocol_host() == 'https':
         print("Drive Small model export start...\n")
         even_break_point = 0.65
         return load_onnx_model_from_drive(SMALL_GOOGLE_DRIVE_MODEL_URL)
