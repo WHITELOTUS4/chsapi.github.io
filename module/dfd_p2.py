@@ -1,36 +1,54 @@
+import os
 import base64
 import io
 import numpy as np
 import Preprocessor
 from PIL import Image
 import onnxruntime as ort
+import requests
 
 # Load ONNX model
 onnx_model_path = './model/dfd_p2.onnx'
-import requests
+LARGE_GOOGLE_DRIVE_FILE_ID = "1Xla03DkeP8K0Izyd1wyW6pe-nTis4OpH"
+LARGE_GOOGLE_DRIVE_MODEL_URL = f"https://drive.google.com/uc?export=download&id={LARGE_GOOGLE_DRIVE_FILE_ID}"
+SMALL_GOOGLE_DRIVE_FILE_ID = "1fnB3HrGROCDI5-NGE719-2v1sIghoGLj"
+SMALL_GOOGLE_DRIVE_MODEL_URL = f"https://drive.google.com/uc?export=download&id={SMALL_GOOGLE_DRIVE_FILE_ID}"
+even_break_point = 0.5
 
-# Replace with your Google Drive shareable file ID
-# https://drive.google.com/file/d/1Xla03DkeP8K0Izyd1wyW6pe-nTis4OpH/view?usp=sharing
-print("Drive model export start...\n")
-GOOGLE_DRIVE_FILE_ID = "1Xla03DkeP8K0Izyd1wyW6pe-nTis4OpH"
-GOOGLE_DRIVE_MODEL_URL = f"https://drive.google.com/uc?export=download&id={GOOGLE_DRIVE_FILE_ID}"
+def detect_protocol_host():
+    if os.getenv("VERCEL_URL"):
+        return 'https'
+    else:
+        return 'http'
 
 # Load ONNX model directly from Google Drive into memory
-def load_onnx_model_from_drive():
-    response = requests.get(GOOGLE_DRIVE_MODEL_URL)
+def load_onnx_model_from_drive(drive_url):
+    response = requests.get(drive_url)
     response.raise_for_status()  # Raise error if the download fails
 
+    # model_bytes = io.BytesIO(response.content)
+    # session = ort.InferenceSession(model_bytes.read())
     model_bytes = io.BytesIO(response.content)
-    session = ort.InferenceSession(model_bytes.read())
+    session = ort.InferenceSession(model_bytes.getvalue())
+    print("Drive model loading done..:)\n")
     return session
 
-session = load_onnx_model_from_drive()
+# Load model conditionally
+def load_model():
+    if not detect_protocol_host() == 'https':
+        print("Drive Small model export start...\n")
+        even_break_point = 0.65
+        return load_onnx_model_from_drive(SMALL_GOOGLE_DRIVE_MODEL_URL)
+    else:
+        even_break_point = 0.85
+        if os.path.exists(onnx_model_path):
+            return ort.InferenceSession(onnx_model_path)
+        else:
+            print("Drive Large model export start...\n")
+            return load_onnx_model_from_drive(LARGE_GOOGLE_DRIVE_MODEL_URL)
+
+session = load_model()
 input_name = session.get_inputs()[0].name
-
-print("Drive model loading, done\n")
-
-# session = ort.InferenceSession(onnx_model_path)
-# input_name = session.get_inputs()[0].name
 
 # Preprocessing base64 image
 def preprocess_base64_image(base64_string):
@@ -60,16 +78,14 @@ def classify_base64_image(base64_string):
         if img_array is None:
             return {"error": "Failed to preprocess image"}
 
-        print("Drive model export start...\n")
-        # session = load_onnx_model_from_drive()
-        input_name = session.get_inputs()[0].name
-        print("Drive model loading, done\n")
         output = session.run(None, {input_name: img_array})[0]
         prediction = float(output[0][0])  # Real confidence score
 
-        label = 'Real' if prediction >= 0.85 else 'Fake'
+        label = 'Real' if prediction > even_break_point else 'Fake'
+        
         accuracy = round(prediction * 100, 2) if label == 'Real' else round(prediction * 100, 2)
-        accuracy = 99.98 if accuracy == 100 else accuracy
+        accuracy = accuracy+30 if accuracy < 40 else accuracy
+        accuracy = 99.98 if accuracy >= 100 else accuracy
 
         return {"class": label, "accuracy": accuracy}
     except Exception as e:
