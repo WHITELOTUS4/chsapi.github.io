@@ -3,6 +3,7 @@ import Preprocessor
 from module import dfd_p1
 from module import dfd_p2
 from module import dfd_p3
+from module import dfd_v1
 
 module_dir = os.path.dirname(__file__)
 if os.path.exists(os.path.join(module_dir, 'temp.py')):
@@ -29,7 +30,7 @@ def hard_voting(voters):
 
 def detect_image(input_list, no_of_model):
     if no_of_model == 'single':
-        src = dfd_p1.detect_image(input_list)
+        src = dfd_p3.detect_image(input_list)
         Preprocessor.single_img_bin.clear()
         return src
     elif no_of_model == 'all':
@@ -44,9 +45,6 @@ def detect_image(input_list, no_of_model):
         return src
     
 def detect_video(input_list):
-    src = {
-        'class': 'Unkown',
-        'accuracy': 0
-    }
+    src = dfd_v1.detect_video(input_list)
     Preprocessor.single_img_bin.clear()
     return src
