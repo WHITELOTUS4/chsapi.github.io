@@ -68,6 +68,20 @@ class Tools:
             print(f"Error to reading image: {e}")
             return False
     
+    def is_video(video_data):
+        valid_extensions = vdo_extensions
+        if not video_data.startswith("data:video/"):
+            return False
+        try:
+            header, encoded_data = video_data.split(",", 1)
+            ext = header.split(";")[0].split("/")[1].lower()
+            if ("."+ext) not in valid_extensions:
+                return False
+        except Exception as e:
+            print(f"Error parsing image data URL: {e}")
+            return False
+        return True
+    
     def base64_type(media_data):
         if not media_data.startswith("data:"):
             return False
