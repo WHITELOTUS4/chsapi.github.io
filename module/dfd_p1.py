@@ -51,7 +51,7 @@ def classify_base64_image(base64_string):
     except Exception as e:
         return {"error": str(e)}
 
-def detect_image(input_list):
+def detect_image(input_list, heatmap):
     image_path = str(input_list[0])
     extension = str(input_list[1])
     new_image_path = None

@@ -13,6 +13,7 @@ session = ort.InferenceSession(MODEL_PATH)
 input_name = session.get_inputs()[0].name
 output_name = session.get_outputs()[0].name
 
+
 # Preprocessing base64 image
 def preprocess_base64_image(base64_string):
     try:
@@ -50,6 +51,7 @@ def classify_base64_image(base64_string):
         return {"class": label, "accuracy": accuracy}
     except Exception as e:
         return {"error": str(e)}
+
 
 def detect_image(input_list):
     image_path = str(input_list[0])

@@ -27,7 +27,7 @@ def hard_voting(voters):
     winer = 'Real' if real > fake else 'Fake'
     return {"class": winer, "accuracy": accuracy}
 
-def detect_image(input_list, no_of_model):
+def detect_image(input_list, no_of_model, heatmap=''):
     if no_of_model == 'single':
         src = dfd_p3.detect_image(input_list)
         Preprocessor.single_img_bin.clear()
@@ -35,7 +35,8 @@ def detect_image(input_list, no_of_model):
     elif no_of_model == 'all':
         if(input_list[0]=='load'):
             input_list[0] = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin.copy())
-        p1 = dfd_p1.detect_image(input_list)
+        
+        p1 = dfd_p1.detect_image(input_list, heatmap)
         p2 = dfd_p2.detect_image(input_list)
         p3 = dfd_p3.detect_image(input_list)
         final_result = hard_voting([p1, p2, p3])
