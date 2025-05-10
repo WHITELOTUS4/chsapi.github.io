@@ -342,10 +342,10 @@ class TaskMaster:
     def resize_img(image_path, width, height):
         src = imgCompressor.resize_image(image_path, width, height)
         return src
-    def dfd_img(input_list, key):
+    def dfd_img(input_list, key, heatmap):
         key_type = Authentication.keyType(key)
         if key_type == 'Private':
-            src = deepfakeDetector.detect_image(input_list, 'all')
+            src = deepfakeDetector.detect_image(input_list, 'all', heatmap)
         elif key_type == 'Public':
             src = deepfakeDetector.detect_image(input_list, 'single')
         else:
