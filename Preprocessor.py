@@ -354,14 +354,15 @@ class TaskMaster:
     def dfd_vdo(input_list, key):
         src = deepfakeDetector.detect_video(input_list)
         return src
-    def enhance_img(input_list):
+    def enhance_img(input_list, key):
         src = imgCompressor.compress_image(input_list)
         return src
-    def compress_img(input_list):
-        if input_list[3] != None:
-            return imgCompressor.compress_image(['degrade', input_list[0], input_list[3]])
+    def compress_img(input_list, key):
+        if ((input_list[1] != None) and (100 >= int(input_list[1]) >= 0)):
+            src =  imgCompressor.compress_image([input_list[0], input_list[1]])
         else:
-            return TaskMaster.resize_img(input_list[0], input_list[1], input_list[2])
+            src =  TaskMaster.resize_img(input_list[0], input_list[2], input_list[3])
+        return src
     
 class Middleware:
     def security(method, allow_method, path, key):

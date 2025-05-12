@@ -108,21 +108,26 @@ class ImgEnhance(BaseModel):
     contrast: float | None
     sharpness: float | None
     quality: int | None
+    load: str | None
     key: str | None
 
 @app.api_route("/api/imageEnhancer", methods=all_methods)
 def read_root(data: ImgEnhance, request: Request):
-    security_pass = Middleware.security(
-        method = request.method,
-        allow_method = ["GET", "POST"],
-        path = request.url.path,
-        key = data.key
-    )
-    if security_pass != None:
-        return security_pass
-    src = TaskMaster.enhance_img(['enhance', data.img, data.brightness, data.contrast, data.sharpness])
-    if src == 19:
-        return customException.processException(request.url.path, data)
+    if not Authentication.isValidAccess(data.key):
+        return customException.accessException(request.url.path, data.key)
+    if request.method not in ["GET", "POST"]:
+        return customException.methodException(request.url.path, request.method)
+    if(data.load=='true' and single_img_bin!=[]):
+        src = TaskMaster.enhance_img(['load', data.brightness, data.contrast, data.sharpness], data.key)
+    else:
+        media = data.img
+        src = TaskMaster.enhance_img([media, data.brightness, data.contrast, data.sharpness], data.key)
+    if src == None or src*0 == 0:
+        ext = Tools.find_extension(media if data.load!='true' else Tools.merge_list_to_string(single_img_bin))
+        if src == None or src == 1:
+            return customException.unsupportException(request.url.path, ext)
+        if src == 19:
+            return customException.convertationException(request.url.path, ext)
     responce = Responce.model(data.key).update("result", src)
     return responce
     # chunk_size = sys.getsizeof(str(responce))/1024
@@ -154,21 +159,27 @@ class ImgCompress(BaseModel):
     height: int | None
     width: int | None
     quality: int | None
+    load: str | None
     key: str | None
 
 @app.api_route("/api/imageCompressor", methods=all_methods)
 def read_root(data: ImgCompress, request: Request):
-    security_pass = Middleware.security(
-        method = request.method,
-        allow_method = ["GET", "POST"],
-        path = request.url.path,
-        key = data.key
-    )
-    if security_pass != None:
-        return security_pass
-    src = TaskMaster.compress_img([data.img, data.width, data.height, data.quality])
-    if src == 19:
-        return customException.processException(request.url.path, data)
+    if not Authentication.isValidAccess(data.key):
+        return customException.accessException(request.url.path, data.key)
+    if request.method not in ["GET", "POST"]:
+        return customException.methodException(request.url.path, request.method)
+    if(data.load=='true' and single_img_bin!=[]):
+        src = TaskMaster.compress_img(['load', data.quality, data.width, data.height], data.key)
+    else:
+        media = data.img
+        src = TaskMaster.compress_img([media, data.quality, data.width, data.height], data.key)
+    if src == None or src*0 == 0:
+        ext = Tools.find_extension(media if data.load!='true' else Tools.merge_list_to_string(single_img_bin))
+        if src == None or src == 1:
+            return customException.unsupportException(request.url.path, ext)
+        if src == 19:
+            return customException.convertationException(request.url.path, ext)
+    single_img_bin.clear()
     responce = Responce.model(data.key).update("result", src)
     return responce
 
