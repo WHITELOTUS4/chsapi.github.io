@@ -4,27 +4,37 @@ import io
 import base64
 import os
 
-# def resize_image(image_path, width, height):
-#     img = cv2.imread(image_path)
-#     (current_height, current_width) = (height, width)
-    
-#     if current_width > 200 or current_height > 200:
-#         if current_width > current_height:
-#             new_width = 200
-#             new_height = int((200 / current_width) * current_height)
-#         else:
-#             new_height = 200
-#             new_width = int((200 / current_height) * current_width)
-        
-#         img = cv2.resize(img, (new_width, new_height))
-        
-#         filename, file_extension = os.path.splitext(image_path)
-#         temp_image_path = f"D:/.vscode/Vs programmes/Df Detector/server-side/public/temp_image.jpg"
-#         cv2.imwrite(temp_image_path, img)
-        
-#         return temp_image_path, new_width, new_height
-#     else:
-#         return "Image size under conditions", current_width, current_height
+def resize_base64_image(base64_str, width, height):
+    try:
+        _, encoded = base64_str.split(",", 1)
+        ext = str(Preprocessor.Tools.find_extension(base64_str)).upper()
+
+        image_data = base64.b64decode(encoded)
+        image = Image.open(io.BytesIO(image_data))
+
+        current_width, current_height = (width, height)
+
+        if current_width > 200 or current_height > 200:
+            if current_width > current_height:
+                new_width = 200
+                new_height = int((200 / current_width) * current_height)
+            else:
+                new_height = 200
+                new_width = int((200 / current_height) * current_width)
+
+            image = image.resize((new_width, new_height), Image.LANCZOS)
+
+            buffer = io.BytesIO()
+            image.save(buffer, format=ext)
+            resized_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+            return f"data:image/{ext.lower()};base64,{resized_base64}", new_width, new_height
+        else:
+            return "Image size under conditions", current_width, current_height
+
+    except Exception as e:
+        print(f"New Error from resizer: {e}")
+        return None
 
 def enhance_base64_image(image_data, brightness, contrast, sharpness):
     try:
@@ -85,27 +95,56 @@ def degrade_image(image_data, quality):
     degraded_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
     return f"data:image/{ext};base64,{degraded_image_base64}"
 
+def fix_base64_padding(encoded_str):
+    missing_padding = len(encoded_str) % 4
+    if missing_padding:
+        encoded_str += "=" * (4 - missing_padding)
+    return encoded_str
 
 def compress_base64_image(base64_str, quality=70):
     try:
         if "," in base64_str:
-            ext = str(Preprocessor.Tools.find_extension(base64_str))
-        else:
-            ext = "jpeg"  
+            _, encoded = base64_str.split(",", 1)
         
-        image_data = base64.b64decode(base64_str)
+        encoded = fix_base64_padding(encoded)
+
+        if "," in base64_str:
+            ext = str(Preprocessor.Tools.find_extension(base64_str)).upper()
+        else:
+            ext = "JPEG"  
+        
+        image_data = base64.b64decode(encoded)
         image = Image.open(io.BytesIO(image_data))
 
         buffer = io.BytesIO()
-        image.save(buffer, format=ext, quality=quality)
-
+        if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
+            image.save(buffer, format=ext, quality=quality)
+        else:
+            image.save(buffer, format=ext, optimize=True)
+        
         compress_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-        return f"data:image/{ext};base64,{compress_image_base64}"
+        return f"data:image/{ext.lower()};base64,{compress_image_base64}"
     except Exception as e:
         print("New Error from compressor: ",e)
         return 3
 
 def compress_image(input_list):
+    image_path = str(input_list[0])
+    quality = int(input_list[1])
+    new_image_path = None
+
+    # print(image_path)
+    if(image_path=='load'):
+        image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
+        # Preprocessor.single_img_bin.clear()
+
+    if Preprocessor.Tools.is_image(image_path) == True:
+        new_image_path = compress_base64_image(image_path, quality)
+        return new_image_path
+    else:
+        # print("Unsupported image format. Only PNG and JPG are supported.")
+        return 1    #custome error code
+    
     # if input_list[0] == 'enhance':
     #     image_path = str(input_list[1])
     #     brightness = 1.2 if input_list[2] == None else float(input_list[2])
@@ -123,18 +162,3 @@ def compress_image(input_list):
         # return resize_image(image_path, width, height)
     # else:
     #     print("Unidentify function name call, please check name space id")
-    image_path = str(input_list[0])
-    quality = str(input_list[1])
-    new_image_path = None
-
-    # print(image_path)
-    if(image_path=='load'):
-        image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
-        # Preprocessor.single_img_bin.clear()
-
-    if Preprocessor.Tools.is_image(image_path) == True:
-        new_image_path=compress_base64_image(base64_str=image_path, quality=quality)
-        return new_image_path
-    else:
-        # print("Unsupported image format. Only PNG and JPG are supported.")
-        return 1    #custome error code
