@@ -159,6 +159,7 @@ class ImgCompress(BaseModel):
     height: int | None
     width: int | None
     quality: int | None
+    docking: str | None
     load: str | None
     key: str | None
 
@@ -180,6 +181,8 @@ def read_root(data: ImgCompress, request: Request):
         if src == 19:
             return customException.convertationException(request.url.path, ext)
     single_img_bin.clear()
+    if data.docking == None or data.docking == '':
+        src = Responce.compress_reponce(src)
     responce = Responce.model(data.key).update("result", src)
     return responce
 

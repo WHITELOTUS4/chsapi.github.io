@@ -104,6 +104,11 @@ class Tools:
             print(f"Error to reading media: {e}")
             return False
         
+    def base64_size(base64_str):
+        encoded = base64_str.split(",")[1] if "," in base64_str else base64_str
+        size_bytes = len(encoded) * (3 / 4) - (encoded.endswith("==") * 2) - (encoded.endswith("=") * 1)
+        return size_bytes / 1024
+        
     def merge_list_to_string(array, delimiter=''):
         return delimiter.join(array)
     
@@ -218,8 +223,50 @@ class Responce:
         #     if not is_success:
         #         return False
         # return True
+    def compress_reponce(base64_str, max_size_kb=900, min_skip_size_kb=900):
+        if Tools.is_image(base64_str) == False:
+            return base64_str
+        
+        if Tools.base64_size(base64_str) <= min_skip_size_kb:
+            return base64_str
 
-    
+        try:
+            header, encoded = base64_str.split(",", 1)
+            ext = header.split(";")[0].split("/")[-1].upper()
+
+            image_data = base64.b64decode(encoded)
+            image = Image.open(io.BytesIO(image_data))
+
+            buffer = io.BytesIO()
+            quality = 95
+
+            while quality >= 10:
+                buffer.seek(0)
+                buffer.truncate(0)
+                
+                if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP"]:
+                    image = image.convert("RGB")
+
+                if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
+                    image.save(buffer, format=ext, quality=quality, progressive=True)
+                else:
+                    image.save(buffer, format=ext, optimize=True)
+
+                compressed_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                compressed_size_kb = Tools.base64_size(f"data:image/{ext.lower()};base64,{compressed_base64}")
+
+                if compressed_size_kb <= max_size_kb:
+                    return f"data:image/{ext.lower()};base64,{compressed_base64}"
+
+                quality -= 5
+
+            return f"data:image/{ext.lower()};base64,{compressed_base64}"
+
+        except Exception as e:
+            print(f"Error compressing image: {e}")
+            return None
+
+
 class Authentication:
     auth_file = './assets/auth.json'
 
@@ -358,7 +405,7 @@ class TaskMaster:
         src = imgCompressor.compress_image(input_list)
         return src
     def compress_img(input_list, key):
-        if ((input_list[1] != None) and (100 >= int(input_list[1]) >= 0)):
+        if ((input_list[1] != None) and (int(input_list[1]) >= 0)):
             src =  imgCompressor.compress_image([input_list[0], input_list[1]])
         else:
             src =  TaskMaster.resize_img(input_list[0], input_list[2], input_list[3])
