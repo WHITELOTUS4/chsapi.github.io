@@ -118,7 +118,7 @@ def compress_base64_image(base64_str, quality=70):
 
         buffer = io.BytesIO()
         if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
-            image.save(buffer, format=ext, quality=quality)
+            image.save(buffer, format=ext, quality=quality, progressive=True)
         else:
             image.save(buffer, format=ext, optimize=True)
         
