@@ -28,14 +28,14 @@ def read_root():
 def read_root():
     return {"result": "List of service is not loaded..", "time": Tools.timeStamp()}
 
-class ImgLoader(BaseModel):
+class SingleImgLoader(BaseModel):
     img: str
     limit: int
     index: int
     key: str | None
 
 @app.api_route("/load/single", methods=all_methods)
-def read_root(data: ImgLoader, request: Request):
+def read_root(data: SingleImgLoader, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST", "SET"]:
@@ -68,6 +68,7 @@ def read_root(data: ImgConverter, request: Request):
         return customException.unsupportException(request.url.path, data.form)
     if src == 17:
         return customException.convertationException(request.url.path, data.form)
+    src = Responce.compress_reponce(src)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
@@ -159,7 +160,6 @@ class ImgCompress(BaseModel):
     height: int | None
     width: int | None
     quality: int | None
-    docking: str | None
     load: str | None
     key: str | None
 
@@ -181,8 +181,7 @@ def read_root(data: ImgCompress, request: Request):
         if src == 19:
             return customException.convertationException(request.url.path, ext)
     single_img_bin.clear()
-    if data.docking == None or data.docking == '':
-        src = Responce.compress_reponce(src)
+    src = Responce.compress_reponce(src)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
