@@ -68,6 +68,7 @@ def read_root(data: ImgConverter, request: Request):
         return customException.unsupportException(request.url.path, data.form)
     if src == 17:
         return customException.convertationException(request.url.path, data.form)
+    single_img_bin.clear()
     src = Responce.compress_reponce(src)
     responce = Responce.model(data.key).update("result", src)
     return responce
@@ -100,6 +101,7 @@ def read_root(data: DfdDetector, request: Request):
         return customException.unsupportException(request.url.path, data.ext)
     if src == 19:
         return customException.convertationException(request.url.path, data.ext)
+    single_img_bin.clear()
     responce = Responce.model(data.key).update("result", src)
     return responce
 
@@ -129,15 +131,9 @@ def read_root(data: ImgEnhance, request: Request):
             return customException.unsupportException(request.url.path, ext)
         if src == 19:
             return customException.convertationException(request.url.path, ext)
+    single_img_bin.clear()
     responce = Responce.model(data.key).update("result", src)
     return responce
-    # chunk_size = sys.getsizeof(str(responce))/1024
-    # chunk_no = round(chunk_size / 900) + 2
-    # part_length = int(len(responce) / chunk_no)+1
-    # return [limit, chunk_size, chunk_no, part_length]
-    # if(limit >= 6 and data.load=='true'):
-    #     responce = (Responce.send_parts_with_ack(str(responce), limit))
-    # return responce
 
 @app.api_route("/api/imageDegrader", methods=all_methods)
 def read_root(data: ImgEnhance, request: Request):
@@ -152,6 +148,7 @@ def read_root(data: ImgEnhance, request: Request):
     src = TaskMaster.enhance_img(['degrade', data.img, data.quality])
     if src == 19:
         return customException.processException(request.url.path, data)
+    single_img_bin.clear()
     responce = Responce.model(data.key).update("result", src)
     return responce
 

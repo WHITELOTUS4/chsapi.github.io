@@ -398,7 +398,7 @@ class TaskMaster:
         else:
             src = 18
         return src
-    def dfd_vdo(input_list, key):
+    def dfd_vdo(input_list, key, heatmap):
         src = deepfakeDetector.detect_video(input_list)
         return src
     def enhance_img(input_list, key):
