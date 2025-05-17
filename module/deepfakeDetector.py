@@ -47,6 +47,6 @@ def detect_image(input_list, no_of_model, heatmap=''):
 def detect_video(input_list):
     src = {
         'class': 'Real',
-        'accuracy': 0
+        'accuracy': 2
     }
     return src

@@ -5,27 +5,6 @@ import base64
 from PIL import Image, ImageOps
 import io
 
-# def convert_png(image_path):
-#     image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-#     if image is None:
-#         raise ValueError("Image not loaded properly. Check the file path.")
-#     if len(image.shape) == 3 and image.shape[2] == 4:
-#         filename, _ = image_path.rsplit('.', 1)
-#         new_image_path = f"{filename}.png"
-#         cv2.imwrite(new_image_path, image, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
-#     else:
-#         if len(image.shape) == 2 or image.shape[2] == 1:
-#             image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGRA)
-#         else:
-#             image = cv2.cvtColor(image, cv2.COLOR_BGR2BGRA)
-#         if image.shape[2] == 3:
-#             alpha_channel = np.ones((image.shape[0], image.shape[1]), dtype=np.uint8) * 255
-#             image = np.dstack((image, alpha_channel))
-#         filename, _ = image_path.rsplit('.', 1)
-#         new_image_path = f"{filename}.png"
-#         cv2.imwrite(new_image_path, image, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
-#     return new_image_path
-
 def convert_png(base64_image_path):
     if not base64_image_path.startswith("data:image"):
         return 1
