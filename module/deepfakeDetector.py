@@ -41,7 +41,6 @@ def detect_image(input_list, no_of_model, heatmap=''):
         p3 = dfd_p3.detect_image(input_list)
         final_result = hard_voting([p1, p2, p3])
         src = Preprocessor.MutableDict(final_result).insert("responce_tree", {"prototype_1": p1, "prototype_2": p2, "prototype_3": p3})
-        print(src)
         Preprocessor.single_img_bin.clear()
         return src
     
