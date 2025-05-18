@@ -28,11 +28,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(script_dir, 'assets', 'manifest.json')
 with open(json_path, 'r') as data:
     manifest = json.load(data)
-# module_dir = os.path.dirname(__file__)
-# if os.path.exists(os.path.join(module_dir, 'module', 'temp.py')):
-#     from module import temp as deepfakeDetector
-# with open('./assets/manifest.json') as data:
-#     manifest = json.load(data)
+
 
 class Tools:
     def json_log(message):
@@ -399,6 +395,7 @@ class TaskMaster:
             src = 18
         return src
     def dfd_vdo(input_list, key, heatmap):
+        print("video detection feature hit by request")
         src = deepfakeDetector.detect_video(input_list)
         return src
     def enhance_img(input_list, key):
