@@ -76,9 +76,9 @@ def read_root(data: ImgConverter, request: Request):
 class DfdDetector(BaseModel):
     ext: str
     media: str
-    heatmap: str | None
     load: str | None
     key: str | None
+    heatmap: str | None
 
 @app.api_route("/api/dfdScanner", methods=all_methods)
 def read_root(data: DfdDetector, request: Request):
