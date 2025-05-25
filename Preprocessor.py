@@ -28,7 +28,11 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 json_path = os.path.join(script_dir, 'assets', 'manifest.json')
 with open(json_path, 'r') as data:
     manifest = json.load(data)
-
+# module_dir = os.path.dirname(__file__)
+# if os.path.exists(os.path.join(module_dir, 'module', 'temp.py')):
+#     from module import temp as deepfakeDetector
+# with open('./assets/manifest.json') as data:
+#     manifest = json.load(data)
 
 class Tools:
     def json_log(message):
@@ -160,65 +164,30 @@ class Responce:
             return customException.accessException("/",key)
         if key == '' or key == None:
             key = 'Public Key'
-        result = MutableDict(manifest['result_schema']).update("metadata.request_id", key)
+        result = MutableDict(manifest['result_schema']).update("metadata.request_id", Responce.mask_key(key))
         result = result.update("metadata.timestamp", Tools.timeStamp())
         return result
+    
+    def mask_key(key: str) -> str:
+        masked = []
+        i = 0
+        length = len(key)
+        while i < length:
+            if i < 6:
+                masked.append(key[i])
+            elif (i - 6) % 19 < 8:
+                masked.append('*')
+            else:
+                masked.append(key[i])
+            i += 1
+        if length >= 3:
+            masked[-3:] = key[-3:]
+        return ''.join(masked)
     
     def initial_responce():
         schema = MutableDict(manifest['root_schema'])
         return schema['html_content']
     
-    def send_parts_with_ack(main_string, limit):
-        print("define ",limit)
-        chunk_size = sys.getsizeof(str(main_string))/1024
-        chunk_no = round(chunk_size / 900) + 2
-        part_length = int(len(main_string) / chunk_no)+1
-        print("Custome limit ", chunk_size, chunk_no, part_length)
-        # return [limit, chunk_size, chunk_no, part_length]
-        # parts = []
-        # for i in range(chunk_no):
-        #     parts.append(main_string[i * part_length : (i + 1) * part_length])
-        #     # print(f"{i} part value {(parts[i])[0:50]}\t{(parts[i])[-50:]}\n")
-        # print(len(parts))
-    
-        # async def send_part(part, index, limit):
-        #     attempts = 0
-        #     while attempts < 3:
-        #         attempts += 1
-        #         try:
-                    # async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-                    #     async with session.post('http://127.0.0.1:5000/load/response',
-                    #         headers={
-                    #             'Content-Type': 'application/json',
-                    #         },
-                    #         json = {
-                    #             "img": part,
-                    #             "limit": limit,
-                    #             "index": index,
-                    #         }
-                    #     ) as response:
-                    #         if response.status != 200:
-                    #             raise ValueError(f"HTTP error! Status: {response.status}")
-                    #         data = await response.json()
-                    #         print(f"Attempt {attempts}:", data)
-                    #         if data.get("ack") == index:
-                    #             return True
-        #             url = 'http://127.0.0.1:5000/load/response'
-        #             headers = {"Content-Type": "application/json"}
-        #             response = requests.post(url, headers=headers, data=json.dumps({"img": part,"limit": limit,"index": index}))
-        #             response.raise_for_status()  # Raise an exception for bad status codes
-
-        #             return {"message": "Data sent successfully"}
-        #         except Exception as e:
-        #             print(f"Error on attempt {attempts} for part {index}: {e}")
-        #     return False
-        # # parts.reverse()
-        # for i in range(len(parts)):
-        #     is_success = await send_part(parts[i], i + 1, chunk_no)
-        #     print(f"{i} part value {(parts[i])[0:50]}\t{(parts[i])[-50:]}\n")
-        #     if not is_success:
-        #         return False
-        # return True
     def compress_reponce(base64_str, max_size_kb=900, min_skip_size_kb=900):
         if Tools.is_image(base64_str) == False:
             return base64_str
@@ -395,7 +364,6 @@ class TaskMaster:
             src = 18
         return src
     def dfd_vdo(input_list, key, heatmap):
-        print("video detection feature hit by request")
         src = deepfakeDetector.detect_video(input_list)
         return src
     def enhance_img(input_list, key):
@@ -407,11 +375,46 @@ class TaskMaster:
         else:
             src =  TaskMaster.resize_img(input_list[0], input_list[2], input_list[3])
         return src
-    
+
 class Middleware:
     def security(method, allow_method, path, key):
         if not Authentication.isValidAccess(key):
             return customException.accessException(path, key)
         if method not in allow_method:
             return customException.methodException(path, method)
+        
+    async def substitution_decoder(cipher, key):
+        key = key if key!='' else '1441'
+        vocabulary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@!*+#%$&^,|?/"
+        plain_txt = ""
+
+        key = (key * ((len(cipher) // len(key)) + 1))
+
+        for i in range(len(cipher)):
+            cipher_index = vocabulary.find(cipher[i])
+            key_index = vocabulary.find(key[i])
+            if cipher_index != -1 and key_index != -1:
+                new_index = (cipher_index - key_index + len(vocabulary)) % len(vocabulary)
+                plain_txt += vocabulary[new_index]
+            else:
+                plain_txt += cipher[i]
+
+        return plain_txt
+
+    
+    async def substitution_encoder(plain_txt, key):
+        key = key if key!='' else '1441'
+        vocabulary = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@!*+#%$&^,|?/"
+        cipher = ""
+        key = key * (len(plain_txt) // len(key) + 1)
+        key = key[:len(plain_txt)]
+        for i in range(len(plain_txt)):
+            plain_txt_index = vocabulary.find(plain_txt[i])
+            key_index = vocabulary.find(key[i])
+            if plain_txt_index != -1 and key_index != -1:
+                new_index = (plain_txt_index + key_index) % len(vocabulary)
+                cipher += vocabulary[new_index]
+            else:
+                cipher += plain_txt[i]
+        return cipher
         
