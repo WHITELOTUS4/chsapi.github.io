@@ -348,8 +348,8 @@ class customException:
         return error
 
 class TaskMaster:
-    def convert_img(input_list):
-        src = imgConverter.convert_image(input_list)
+    async def convert_img(input_list, key):
+        src = await imgConverter.convert_image(input_list, key)
         return src
     def resize_img(image_path, width, height):
         src = imgCompressor.resize_image(image_path, width, height)
@@ -377,6 +377,8 @@ class TaskMaster:
         return src
 
 class Middleware:
+    key = '1441'
+    
     def security(method, allow_method, path, key):
         if not Authentication.isValidAccess(key):
             return customException.accessException(path, key)
@@ -418,3 +420,5 @@ class Middleware:
                 cipher += plain_txt[i]
         return cipher
         
+    def generateSmallPrime():
+        return random.choice([2, 3, 5, 7])

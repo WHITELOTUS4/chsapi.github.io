@@ -35,14 +35,19 @@ class SingleImgLoader(BaseModel):
     key: str | None
 
 @app.api_route("/load/single", methods=all_methods)
-def read_root(data: SingleImgLoader, request: Request):
+async def read_root(data: SingleImgLoader, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST", "SET"]:
         return customException.methodException(request.url.path, request.method)
     if(data.index <= data.limit and data.index > 0):
-        single_img_bin.append(data.img)
-        return {"ack": data.index, "time": Tools.timeStamp()}
+        if data.img.startswith("encrypted::"):
+            _, body = data.img.split("encrypted::", 1)
+            # decoded_data = await Middleware.substitution_decoder(body, data.key)
+            single_img_bin.append(body)
+        else:
+            single_img_bin.append(data.img)
+        return {"ack": data.index, "part": len(single_img_bin[len(single_img_bin)-1]), "time": Tools.timeStamp()}
     else:
         print("image index out of range")
 
@@ -53,23 +58,27 @@ class ImgConverter(BaseModel):
     key: str | None
 
 @app.api_route("/api/imageConverter", methods=all_methods)
-def read_root(data: ImgConverter, request: Request):
-    limit = len(single_img_bin)
+async def read_root(data: ImgConverter, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
     if(data.load=='true' and single_img_bin!=[]):
-        src = TaskMaster.convert_img(['load', data.form])
+        src = await TaskMaster.convert_img(['load', data.form], data.key)
     else:
         img = data.img
-        src = TaskMaster.convert_img([img, data.form])
+        if img.startswith("encrypted::"):
+            _, body = img.split("encrypted::", 1)
+            decoded_data = await Middleware.substitution_decoder(body, data.key)
+            img = decoded_data
+        src = await TaskMaster.convert_img([img, data.form], data.key)
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.form)
     if src == 17:
         return customException.convertationException(request.url.path, data.form)
     single_img_bin.clear()
     src = Responce.compress_reponce(src)
+    src = await Middleware.substitution_encoder(src, data.key)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
@@ -181,6 +190,16 @@ def read_root(data: ImgCompress, request: Request):
     src = Responce.compress_reponce(src)
     responce = Responce.model(data.key).update("result", src)
     return responce
+
+@app.get("/key_exchange")
+def read_root():
+    prime = Middleware.generateSmallPrime()
+    return prime
+
+@app.get("/set_key")
+def read_root(token):
+    Middleware.key = token
+    return {"ack": 0, "time": Tools.timeStamp()}
 
 @app.get("/test")
 def read_root(a, b):
