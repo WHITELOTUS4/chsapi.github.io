@@ -4,6 +4,7 @@ import svgwrite
 import base64
 from PIL import Image, ImageOps
 import io
+import asyncio
 
 def convert_png(base64_image_path):
     if not base64_image_path.startswith("data:image"):
@@ -92,16 +93,22 @@ def convert_tga(image_path):
 def convert_tiff(image_path):
     return image_path
 
-def convert_image(input_list):
+def fix_base64_padding(base64_string):
+    while len(base64_string) % 4 != 0:
+        base64_string += "="
+    return base64_string
+
+async def convert_image(input_list, key):
     image_path = str(input_list[0])
     extension = str(input_list[1])
     new_image_path = None
 
-    # print(image_path)
     if(image_path=='load'):
         image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
         Preprocessor.single_img_bin.clear()
 
+    image_path = await Preprocessor.Middleware.substitution_decoder(image_path, key)
+    
     if Preprocessor.Tools.is_image(image_path) == True:
         if extension == 'png':
             new_image_path = convert_png(image_path)
