@@ -241,7 +241,7 @@ class Authentication:
         else:
             key = encrypted_key[:32]
             salt = encrypted_key[32:]
-            p = int(await Middleware.substitution_decoder(salt, Middleware.key))
+            p = int(await Middleware.substitution_decoder(salt, '1441'))
             q=7
             fn=(p-1)*(q-1)
             a = ''
