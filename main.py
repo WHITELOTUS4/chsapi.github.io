@@ -36,6 +36,7 @@ class SingleImgLoader(BaseModel):
 
 @app.api_route("/load/single", methods=all_methods)
 async def read_root(data: SingleImgLoader, request: Request):
+    data.key = await Authentication.normalizeKey(data.key)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST", "SET"]:
@@ -58,6 +59,7 @@ class ImgConverter(BaseModel):
 
 @app.api_route("/api/imageConverter", methods=all_methods)
 async def read_root(data: ImgConverter, request: Request):
+    data.key = await Authentication.normalizeKey(data.key)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:

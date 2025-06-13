@@ -235,6 +235,36 @@ class Responce:
 class Authentication:
     auth_file = './assets/auth.json'
 
+    async def normalizeKey(encrypted_key):
+        if len(encrypted_key)<=32:
+            return encrypted_key
+        else:
+            key = encrypted_key[:32]
+            salt = encrypted_key[32:]
+            p = int(await Middleware.substitution_decoder(salt, Middleware.key))
+            q=7
+            fn=(p-1)*(q-1)
+            a = ''
+            e = 2
+            while str(a).find('.') < 0:
+                a = fn / e
+                a = int(a) if a.is_integer() else a
+                e += 1
+                if e > 100:
+                    e = 1
+            e = e - 1
+            d = '.'
+            i = 2
+            while str(d).find('.') >= 0:
+                d = ((fn * i) + 1) / e
+                d = int(d) if d.is_integer() else d
+                i += 1
+                if e > 20:
+                    e = 1
+            api_key = await Middleware.substitution_decoder(key, str(d))
+            return api_key
+
+
     def isValidAccess(key):
         try:
             if key == '' or key == None:
