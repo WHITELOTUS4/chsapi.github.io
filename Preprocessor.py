@@ -262,6 +262,7 @@ class Authentication:
                 if e > 20:
                     e = 1
             api_key = await Middleware.substitution_decoder(key, str(d))
+            print(api_key)
             return api_key
 
 
