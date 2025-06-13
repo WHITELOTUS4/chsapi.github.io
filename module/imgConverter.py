@@ -106,8 +106,10 @@ async def convert_image(input_list, key):
     if(image_path=='load'):
         image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
         Preprocessor.single_img_bin.clear()
+    
+    if not image_path.startswith("data:image/"):
+        image_path = await Preprocessor.Middleware.substitution_decoder(image_path, key)
 
-    image_path = await Preprocessor.Middleware.substitution_decoder(image_path, key)
     
     if Preprocessor.Tools.is_image(image_path) == True:
         if extension == 'png':
