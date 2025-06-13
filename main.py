@@ -43,7 +43,6 @@ async def read_root(data: SingleImgLoader, request: Request):
     if(data.index <= data.limit and data.index > 0):
         if data.img.startswith("encrypted::"):
             _, body = data.img.split("encrypted::", 1)
-            # decoded_data = await Middleware.substitution_decoder(body, data.key)
             single_img_bin.append(body)
         else:
             single_img_bin.append(data.img)

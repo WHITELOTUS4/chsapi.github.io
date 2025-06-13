@@ -194,17 +194,17 @@ class Responce:
         
         if Tools.base64_size(base64_str) <= min_skip_size_kb:
             return base64_str
-
+        
         try:
             header, encoded = base64_str.split(",", 1)
             ext = header.split(";")[0].split("/")[-1].upper()
-
+            
             image_data = base64.b64decode(encoded)
             image = Image.open(io.BytesIO(image_data))
 
             buffer = io.BytesIO()
             quality = 95
-
+            
             while quality >= 10:
                 buffer.seek(0)
                 buffer.truncate(0)
@@ -219,8 +219,8 @@ class Responce:
 
                 compressed_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
                 compressed_size_kb = Tools.base64_size(f"data:image/{ext.lower()};base64,{compressed_base64}")
-
-                if compressed_size_kb <= max_size_kb:
+                
+                if compressed_size_kb <= max_size_kb or compressed_size_kb <= 1364:
                     return f"data:image/{ext.lower()};base64,{compressed_base64}"
 
                 quality -= 5
