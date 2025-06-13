@@ -91,7 +91,8 @@ class DfdDetector(BaseModel):
     heatmap: str | None
 
 @app.api_route("/api/dfdScanner", methods=all_methods)
-def read_root(data: DfdDetector, request: Request):
+async def read_root(data: DfdDetector, request: Request):
+    data.key = await Authentication.normalizeKey(data.key)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
@@ -171,7 +172,8 @@ class ImgCompress(BaseModel):
     key: str | None
 
 @app.api_route("/api/imageCompressor", methods=all_methods)
-def read_root(data: ImgCompress, request: Request):
+async def read_root(data: ImgCompress, request: Request):
+    data.key = await Authentication.normalizeKey(data.key)
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
@@ -189,6 +191,7 @@ def read_root(data: ImgCompress, request: Request):
             return customException.convertationException(request.url.path, ext)
     single_img_bin.clear()
     src = Responce.compress_reponce(src)
+    src = await Middleware.substitution_encoder(src, data.key)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
