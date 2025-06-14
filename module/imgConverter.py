@@ -98,7 +98,7 @@ def fix_base64_padding(base64_string):
         base64_string += "="
     return base64_string
 
-async def convert_image(input_list, key):
+def convert_image(input_list, key):
     image_path = str(input_list[0])
     extension = str(input_list[1])
     new_image_path = None
@@ -107,8 +107,8 @@ async def convert_image(input_list, key):
         image_path = Preprocessor.Tools.merge_list_to_string(Preprocessor.single_img_bin)
         Preprocessor.single_img_bin.clear()
     
-    if not image_path.startswith("data:image/"):
-        image_path = await Preprocessor.Middleware.substitution_decoder(image_path, key)
+    # if not image_path.startswith("data:image/"):
+    #     image_path = await Preprocessor.Middleware.substitution_decoder(image_path, key)
 
     
     if Preprocessor.Tools.is_image(image_path) == True:
