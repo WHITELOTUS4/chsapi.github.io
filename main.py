@@ -35,8 +35,7 @@ class SingleImgLoader(BaseModel):
     key: str | None
 
 @app.api_route("/load/single", methods=all_methods)
-async def read_root(data: SingleImgLoader, request: Request):
-    data.key = await Authentication.normalizeKey(data.key)
+def read_root(data: SingleImgLoader, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST", "SET"]:
@@ -58,28 +57,22 @@ class ImgConverter(BaseModel):
     key: str | None
 
 @app.api_route("/api/imageConverter", methods=all_methods)
-async def read_root(data: ImgConverter, request: Request):
-    data.key = await Authentication.normalizeKey(data.key)
+def read_root(data: ImgConverter, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
         return customException.methodException(request.url.path, request.method)
     if(data.load=='true' and single_img_bin!=[]):
-        src = await TaskMaster.convert_img(['load', data.form], data.key)
+        src = TaskMaster.convert_img(['load', data.form], data.key)
     else:
         img = data.img
-        if img.startswith("encrypted::"):
-            _, body = img.split("encrypted::", 1)
-            decoded_data = await Middleware.substitution_decoder(body, data.key)
-            img = decoded_data
-        src = await TaskMaster.convert_img([img, data.form], data.key)
+        src = TaskMaster.convert_img([img, data.form], data.key)
     if src == None or src == 1:
         return customException.unsupportException(request.url.path, data.form)
     if src == 17:
         return customException.convertationException(request.url.path, data.form)
     single_img_bin.clear()
     src = Responce.compress_reponce(src)
-    src = await Middleware.substitution_encoder(src, data.key)
     responce = Responce.model(data.key).update("result", src)
     return responce
 
@@ -91,8 +84,7 @@ class DfdDetector(BaseModel):
     heatmap: str | None
 
 @app.api_route("/api/dfdScanner", methods=all_methods)
-async def read_root(data: DfdDetector, request: Request):
-    data.key = await Authentication.normalizeKey(data.key)
+def read_root(data: DfdDetector, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
@@ -172,8 +164,7 @@ class ImgCompress(BaseModel):
     key: str | None
 
 @app.api_route("/api/imageCompressor", methods=all_methods)
-async def read_root(data: ImgCompress, request: Request):
-    data.key = await Authentication.normalizeKey(data.key)
+def read_root(data: ImgCompress, request: Request):
     if not Authentication.isValidAccess(data.key):
         return customException.accessException(request.url.path, data.key)
     if request.method not in ["GET", "POST"]:
@@ -191,7 +182,6 @@ async def read_root(data: ImgCompress, request: Request):
             return customException.convertationException(request.url.path, ext)
     single_img_bin.clear()
     src = Responce.compress_reponce(src)
-    src = await Middleware.substitution_encoder(src, data.key)
     responce = Responce.model(data.key).update("result", src)
     return responce
 

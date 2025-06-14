@@ -378,8 +378,8 @@ class customException:
         return error
 
 class TaskMaster:
-    async def convert_img(input_list, key):
-        src = await imgConverter.convert_image(input_list, key)
+    def convert_img(input_list, key):
+        src = imgConverter.convert_image(input_list, key)
         return src
     def resize_img(image_path, width, height):
         src = imgCompressor.resize_image(image_path, width, height)
