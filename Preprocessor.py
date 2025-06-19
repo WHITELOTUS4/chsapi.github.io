@@ -169,6 +169,7 @@ class Responce:
         return result
     
     def mask_key(key: str) -> str:
+        if key == 'Public Key': return key
         masked = []
         i = 0
         length = len(key)
