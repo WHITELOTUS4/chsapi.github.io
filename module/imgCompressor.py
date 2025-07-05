@@ -118,7 +118,7 @@ def compress_base64_image(base64_str, quality=70):
         buffer = io.BytesIO()
         try:
             if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
-                image.save(buffer, format=ext if ext!='JPG' else 'JPEG', quality=quality, progressive=True)
+                image.save(buffer, format= ext if ext!='JPG' else 'JPEG', quality=quality, progressive=True)
             else:
                 image.save(buffer, format=ext, optimize=True)
         except Exception as e:
@@ -146,21 +146,4 @@ def compress_image(input_list):
     else:
         # print("Unsupported image format. Only PNG and JPG are supported.")
         return 1    #custome error code
-    
-    # if input_list[0] == 'enhance':
-    #     image_path = str(input_list[1])
-    #     brightness = 1.2 if input_list[2] == None else float(input_list[2])
-    #     contrast = 1.3 if input_list[3] == None else float(input_list[3])
-    #     sharpness = 2.0 if input_list[4] == None else float(input_list[4])
-    #     return enhance_image(image_path, brightness, contrast, sharpness)
-    # elif input_list[0] == 'degrade':
-    #     image_path = str(input_list[1])
-    #     quality = 20 if input_list[2] == None else int(input_list[2])
-    #     return degrade_image(image_path, quality)
-    # elif input_list[0] == 'resize':
-    #     image_path = str(input_list[1])
-    #     height = 200 if input_list[2] == None else int(input_list[2])
-    #     width = 200 if input_list[2] == None else int(input_list[3])
-        # return resize_image(image_path, width, height)
-    # else:
-    #     print("Unidentify function name call, please check name space id")
+
