@@ -111,17 +111,19 @@ def compress_base64_image(base64_str, quality=70):
         if "," in base64_str:
             ext = str(Preprocessor.Tools.find_extension(base64_str)).upper()
         else:
-            ext = "JPEG"  
-        
+            ext = "JPEG"
         image_data = base64.b64decode(encoded)
         image = Image.open(io.BytesIO(image_data))
-
-        buffer = io.BytesIO()
-        if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
-            image.save(buffer, format=ext, quality=quality, progressive=True)
-        else:
-            image.save(buffer, format=ext, optimize=True)
         
+        buffer = io.BytesIO()
+        try:
+            if ext in ["JPEG", "JPG", "JPE", "JFIF", "WEBP", "TIFF"]:
+                image.save(buffer, format=ext if ext!='JPG' else 'JPEG', quality=quality, progressive=True)
+            else:
+                image.save(buffer, format=ext, optimize=True)
+        except Exception as e:
+            print("New Error to compress", e)
+            return 19
         compress_image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
         return f"data:image/{ext.lower()};base64,{compress_image_base64}"
     except Exception as e:
