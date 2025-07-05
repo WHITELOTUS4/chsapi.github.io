@@ -49,7 +49,7 @@ class Tools:
     
     def is_image(image_data):
         valid_extensions = img_extensions
-        if not image_data.startswith("data:image/"):
+        if not str(image_data).startswith("data:image/"):
             return False
         try:
             header, encoded_data = image_data.split(",", 1)

@@ -178,7 +178,7 @@ def read_root(data: ImgCompress, request: Request):
         ext = Tools.find_extension(media if data.load!='true' else Tools.merge_list_to_string(single_img_bin))
         if src == None or src == 1:
             return customException.unsupportException(request.url.path, ext)
-        if src == 19:
+        if src == 19 or src == 3:
             return customException.convertationException(request.url.path, ext)
     single_img_bin.clear()
     src = Responce.compress_reponce(src)
