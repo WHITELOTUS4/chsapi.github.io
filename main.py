@@ -188,6 +188,10 @@ def read_root(data: ImgCompress, request: Request):
     responce = Responce.model(data.key).update("result", src)
     return responce
 
+@app.api_route("/api/imageCompressor", methods=all_methods)
+def read_root(request: Request):
+    return None
+
 @app.get("/key_exchange")
 def read_root():
     prime = Middleware.generateSmallPrime()
