@@ -3,11 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from Preprocessor import Authentication, customException, Responce, TaskMaster, Tools, sum, Middleware, single_img_bin
 from fastapi.responses import HTMLResponse
+from module import proxy
 import asyncio
 import numpy as np
 
 app = FastAPI()
 
+app.add_middleware(proxy.SecurityMiddleware)
+app.add_middleware(proxy.GZipMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ["*"],
